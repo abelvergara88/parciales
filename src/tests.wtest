@@ -1,6 +1,15 @@
+import catar.*
 
-test "testX" {
-
-	assert.that(true)
-
+describe "Tests calificación de pastelero" {
+	const zoe = new Cocinero(especialidad = new Pastelero(nivelDeseadoDulzor = 100))
+	
+	test "Un pastelero califica bien sin pasarse del máximo" {
+		const vigilante = new Postre(cantidadColores = 2, nombreDelCocinero = zoe)
+		assert.equals(6, zoe.catar(vigilante))
+	}
+	
+	test "Un pastelero califica sin pasar del máximo" {
+		const fideosConTuco = new Principal(esBonito = false, cantidadDeAzucar = 9999, nombreDelCocinero = zoe)
+		assert.equals(10, zoe.catar(fideosConTuco))
+	}
 }
