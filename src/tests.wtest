@@ -1,4 +1,6 @@
 import catar.*
+import brawls.*
+import mensajeria.*
 
 describe "Tests calificación de pastelero" {
 	const zoe = new Cocinero(especialidad = new Pastelero(nivelDeseadoDulzor = 100))
@@ -12,4 +14,100 @@ describe "Tests calificación de pastelero" {
 		const fideosConTuco = new Principal(esBonito = false, cantidadDeAzucar = 9999, nombreDelCocinero = zoe)
 		assert.equals(10, zoe.catar(fideosConTuco))
 	}
+}
+
+
+
+describe "tests de browls" {
+	
+	const dibu = new Arquero(agilidad = 25, rango = 40)
+	const leia = new Guerrero(tieneEstrategia = false, fuerza = 100)
+	const marita = new Ballestero(agilidad = 0, rango = 101)
+	const unaMisionInd = new MisionIndividual(dificultad = 100, participante = dibu)
+	const otraMision = new MisionEquipo(participantes=[dibu,leia,marita])
+	const unaMisionSinPersonajes = new MisionEquipo()
+	
+	
+
+	test "mision superada" {	
+		assert.that(unaMisionInd.puedeSuperarse())
+	}
+	
+	test "mision sin personajes, es tan trivial que puede ser superada" {
+		assert.that(unaMisionSinPersonajes.puedeSuperarse())
+	}
+	
+	test "mision no superada" {
+		assert.notThat(otraMision.puedeSuperarse())
+	}
+	
+	
+	test "cant copas de una misión con boost se multiplica por el multiplicador" {
+		
+		var mision = new MisionIndividual(dificultad = 10, participante = leia, tipoDeMision = new Boost(multiplicador = 3))
+		
+		assert.equals(60, mision.cantidadDeCopasFinal())
+	}
+
+	// Punto 4)
+	
+	// puede ser superada cuando el personaje tiene estrategia o bien cuando su destreza supera la dificultad de la misión.
+	// prueba que una misión individual fue superada
+	
+	test "una mision individual es superada cuando el personaje tiene estrategia (no importa la destreza)" {
+		unaMisionInd.participante(marita)
+		assert.that(unaMisionInd.puedeSuperarse())
+	}
+	test "una mision individual es superada cuando el personaje supera la destreza de la misión (no importa la estrategia)" {
+		assert.that(unaMisionInd.puedeSuperarse())
+	}
+	
+	test "una mision individual no es superada cuando no le alcanza la destreza (sin tener estrategia)" {
+		unaMisionInd.participante(new Guerrero(tieneEstrategia=false, fuerza=1))
+		assert.notThat(unaMisionInd.puedeSuperarse())
+	}
+}
+
+describe "Wolloksapp" {
+
+	const alf = new Usuario()
+	const rasta = new Usuario()
+	const chat = new Chat(participantes = [ alf, rasta ])
+	const mensaje = new Mensaje(contenido = new Texto(elTexto = "Hola"), emisor = alf)
+
+
+	test "Saber el espacio que ocupa un chat" {
+		alf.agregarChat(chat)
+		rasta.agregarChat(chat)
+		chat.enviar(mensaje)
+		assert.equals(10.2, chat.pesoDelChat())
+	}
+
+	test "Enviar un mensaje a un chat" {
+		alf.agregarChat(chat)
+		rasta.agregarChat(chat)
+		chat.enviar(mensaje)
+		assert.that(chat.mensajes().contains(mensaje))
+	}
+	
+	test "Mensajes mas pesados" {
+		alf.agregarChat(chat)
+		rasta.agregarChat(chat)
+		chat.enviar(mensaje)
+		assert.equals([mensaje], alf.elMasPesadoDeCadaChat())
+	}
+	
+	test "Leer un chat" {
+		rasta.leer(chat)
+		assert.equals(0, rasta.notificacionesSinLeer().size())
+		assert.equals(1, alf.notificacionesSinLeer().size())
+	}
+
+	test "Buscar" {
+		alf.agregarChat(chat)
+		rasta.agregarChat(chat)
+		chat.enviar(mensaje)
+		assert.equals([chat], alf.buscar("Hola"))
+	}
+
 }
